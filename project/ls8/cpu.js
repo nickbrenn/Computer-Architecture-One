@@ -127,12 +127,12 @@ class CPU {
 
     // Execute the instruction. Perform the actions for the instruction as
     // outlined in the LS-8 spec.
-    const LDI = 153,
-      PRN = 67,
-      MUL = 170,
-      CALL = 72,
-      ADD = 24,
-      HLT = 1;
+    // const LDI = 153,
+    //   PRN = 67,
+    //   MUL = 170,
+    //   CALL = 72,
+    //   ADD = 24,
+    //   HLT = 1;
 
     this.branchTable[IR](operandA, operandB);
 
