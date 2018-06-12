@@ -14,6 +14,15 @@ class CPU {
 
     this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
 
+    this.branchTable = new Array();
+
+    this.branchTable[153] = (a, b) => this.handle_LDI(a, b);
+    this.branchTable[67] = (a, b) => this.handle_PRN(a, b);
+    this.branchTable[170] = (a, b) => this.handle_MUL(a, b);
+    this.branchTable[72] = (a, b) => this.handle_CALL(a, b);
+    this.branchTable[24] = (a, b) => this.handle_ADD(a, b);
+    this.branchTable[1] = () => this.handle_HLT();
+
     // Special-purpose registers
     this.PC = 0; // Program Counter
   }
@@ -55,9 +64,41 @@ class CPU {
   alu(op, regA, regB) {
     switch (op) {
       case "MUL":
-        // !!! IMPLEMENT ME
         return (regA *= regB);
     }
+  }
+
+  handle_LDI(operandA, operandB) {
+    console.log("In reg " + operandA + " write " + operandB);
+    this.reg[operandA] = operandB;
+  }
+
+  handle_PRN(operandA, operandB) {
+    console.log(`Print of reg ${operandA} is ${this.reg[operandA]}`);
+  }
+
+  handle_MUL(operandA, operandB) {
+    console.log(`Multiply ${this.reg[operandA]} by ${this.reg[operandB]}`);
+    this.reg[operandA] = this.alu(
+      "MUL",
+      this.reg[operandA],
+      this.reg[operandB]
+    );
+    console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
+  }
+
+  handle_CALL(operandA, operandB) {
+    console.log(`Reg ${operandA} is called (${this.reg[operandA]})`);
+  }
+
+  handle_ADD(operandA, operandB) {
+    console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
+    this.reg[operandA] *= 2;
+    console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
+  }
+
+  handle_HLT() {
+    this.stopClock();
   }
 
   /**
@@ -73,7 +114,7 @@ class CPU {
     const IR = this.ram.read(this.PC);
 
     // Debugging output
-    const IRstring = IR.toString(2);
+    // const IRstring = IR.toString(2);
     // console.log(`${this.PC}: ${IR.toString(2)}`);
     // console.log(`${this.PC}: ${IR}`);
 
@@ -93,56 +134,12 @@ class CPU {
       ADD = 24,
       HLT = 1;
 
-    // !!! IMPLEMENT ME
-    switch (IR) {
-      case LDI:
-        console.log("In reg " + operandA + " write " + operandB);
-        this.reg[operandA] = operandB;
-        break;
-      case PRN:
-        console.log(`Print of reg ${operandA} is ${this.reg[operandA]}`);
-        break;
-      case MUL:
-        console.log(`Multiply ${this.reg[operandA]} by ${this.reg[operandB]}`);
-        this.reg[operandA] = this.alu(
-          "MUL",
-          this.reg[operandA],
-          this.reg[operandB]
-        );
-        console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
-        break;
-      case CALL:
-        console.log(`Reg ${operandA} is called (${this.reg[operandA]})`);
-        break;
-      case ADD:
-        console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
-        this.reg[operandA] *= 2;
-        console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
-        break;
-      case HLT:
-        this.stopClock();
-        break;
-      default:
-        console.log("Unknown instruction given.");
-        this.stopClock();
-        break;
-    }
+    this.branchTable[IR](operandA, operandB);
 
     // Increment the PC register to go to the next instruction. Instructions
     // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
     // instruction byte tells you how many bytes follow the instruction byte
     // for any particular instruction.
-
-    // !!! IMPLEMENT ME
-    // const IRstringEnd =
-    //   IRstring[IRstring.length - 2] + IRstring[IRstring.length - 1];
-    // // console.log("irstring end is this " + IRstringEnd);
-    // if (IRstringEnd === "01" || IRstringEnd === "10") {
-    //   this.PC += 3;
-    // } else if (IRstringEnd === "00" || IRstringEnd === "11") {
-    //   this.PC += 2;
-    // } else this.PC += 1;
-
     const instLen = (IR >> 6) + 1;
     this.PC += instLen;
   }
