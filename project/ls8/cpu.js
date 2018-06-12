@@ -86,17 +86,23 @@ class CPU {
 
     // Execute the instruction. Perform the actions for the instruction as
     // outlined in the LS-8 spec.
+    const LDI = 153,
+      PRN = 67,
+      MUL = 170,
+      CALL = 72,
+      ADD = 24,
+      HLT = 1;
 
     // !!! IMPLEMENT ME
     switch (IR) {
-      case 153:
+      case LDI:
         console.log("In reg " + operandA + " write " + operandB);
         this.reg[operandA] = operandB;
         break;
-      case 67:
+      case PRN:
         console.log(`Print of reg ${operandA} is ${this.reg[operandA]}`);
         break;
-      case 170:
+      case MUL:
         console.log(`Multiply ${this.reg[operandA]} by ${this.reg[operandB]}`);
         this.reg[operandA] = this.alu(
           "MUL",
@@ -105,18 +111,20 @@ class CPU {
         );
         console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
         break;
-      case 72:
+      case CALL:
         console.log(`Reg ${operandA} is called (${this.reg[operandA]})`);
         break;
-      case 24:
+      case ADD:
         console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
         this.reg[operandA] *= 2;
         console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
         break;
-      case 1:
-        return this.stopClock();
+      case HLT:
+        this.stopClock();
         break;
       default:
+        console.log("Unknown instruction given.");
+        this.stopClock();
         break;
     }
 
@@ -126,14 +134,17 @@ class CPU {
     // for any particular instruction.
 
     // !!! IMPLEMENT ME
-    const IRstringEnd =
-      IRstring[IRstring.length - 2] + IRstring[IRstring.length - 1];
-    // console.log("irstring end is this " + IRstringEnd);
-    if (IRstringEnd === "01" || IRstringEnd === "10") {
-      this.PC += 3;
-    } else if (IRstringEnd === "00" || IRstringEnd === "11") {
-      this.PC += 2;
-    } else this.PC += 1;
+    // const IRstringEnd =
+    //   IRstring[IRstring.length - 2] + IRstring[IRstring.length - 1];
+    // // console.log("irstring end is this " + IRstringEnd);
+    // if (IRstringEnd === "01" || IRstringEnd === "10") {
+    //   this.PC += 3;
+    // } else if (IRstringEnd === "00" || IRstringEnd === "11") {
+    //   this.PC += 2;
+    // } else this.PC += 1;
+
+    const instLen = (IR >> 6) + 1;
+    this.PC += instLen;
   }
 }
 
