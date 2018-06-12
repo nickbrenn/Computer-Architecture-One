@@ -90,13 +90,16 @@ class CPU {
     // !!! IMPLEMENT ME
     switch (IR) {
       case 153:
-        // console.log("in " + operandA + " put " + operandB);
+        console.log("In reg " + operandA + " write " + operandB);
         this.reg[operandA] = operandB;
         break;
       case 67:
-        console.log(
-          "This is the printout of this.reg[operandA]: " + this.reg[operandA]
-        );
+        console.log(`Print of reg ${operandA} is ${this.reg[operandA]}`);
+        break;
+      case 170:
+        console.log(`Multiply ${this.reg[operandA]} by ${this.reg[operandB]}`);
+        this.reg[operandA] *= this.reg[operandB];
+        console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
         break;
       case 1:
         this.stopClock();
@@ -114,7 +117,7 @@ class CPU {
     const IRstringEnd =
       IRstring[IRstring.length - 2] + IRstring[IRstring.length - 1];
     // console.log("irstring end is this " + IRstringEnd);
-    if (IRstringEnd === "01") {
+    if (IRstringEnd === "01" || IRstringEnd === "10") {
       this.PC += 3;
     } else if (IRstringEnd === "00") {
       this.PC += 2;
