@@ -56,7 +56,7 @@ class CPU {
     switch (op) {
       case "MUL":
         // !!! IMPLEMENT ME
-        break;
+        return (regA *= regB);
     }
   }
 
@@ -98,11 +98,23 @@ class CPU {
         break;
       case 170:
         console.log(`Multiply ${this.reg[operandA]} by ${this.reg[operandB]}`);
-        this.reg[operandA] *= this.reg[operandB];
+        this.reg[operandA] = this.alu(
+          "MUL",
+          this.reg[operandA],
+          this.reg[operandB]
+        );
+        console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
+        break;
+      case 72:
+        console.log(`Reg ${operandA} is called (${this.reg[operandA]})`);
+        break;
+      case 24:
+        console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
+        this.reg[operandA] *= 2;
         console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
         break;
       case 1:
-        this.stopClock();
+        return this.stopClock();
         break;
       default:
         break;
@@ -119,7 +131,7 @@ class CPU {
     // console.log("irstring end is this " + IRstringEnd);
     if (IRstringEnd === "01" || IRstringEnd === "10") {
       this.PC += 3;
-    } else if (IRstringEnd === "00") {
+    } else if (IRstringEnd === "00" || IRstringEnd === "11") {
       this.PC += 2;
     } else this.PC += 1;
   }
