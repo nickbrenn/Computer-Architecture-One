@@ -13,6 +13,7 @@ class CPU {
     this.ram = ram;
 
     this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
+    this.SP = 244;
 
     this.branchTable = new Array();
 
@@ -21,6 +22,8 @@ class CPU {
     this.branchTable[170] = (a, b) => this.handle_MUL(a, b);
     this.branchTable[72] = (a, b) => this.handle_CALL(a, b);
     this.branchTable[24] = (a, b) => this.handle_ADD(a, b);
+    this.branchTable[77] = a => this.handle_PUSH(a);
+    this.branchTable[76] = a => this.handle_POP(a);
     this.branchTable[1] = () => this.handle_HLT();
 
     // Special-purpose registers
@@ -95,6 +98,25 @@ class CPU {
     console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
     this.reg[operandA] *= 2;
     console.log(`Reg ${operandA} is now equal to ${this.reg[operandA]}`);
+  }
+
+  handle_PUSH(operandA) {
+    console.log(`PUSH is called, operandA = ${operandA}`);
+    --this.SP;
+    console.log("this.SP is now", this.SP);
+    this.ram[this.SP] = this.reg[operandA];
+    this.reg[7] = this.ram[this.SP];
+    console.log("Reg 7 is now " + this.reg[7]);
+  }
+
+  handle_POP(operandA) {
+    console.log(`POP is called here, operandA = ${operandA}`);
+    this.reg[operandA] = this.reg[7];
+    console.log(`Reg ${operandA} now = ${this.reg[7]}`);
+    this.SP++;
+    console.log("this.SP is now", this.SP);
+    this.reg[7] = this.ram[this.SP];
+    console.log("Reg 7 is now " + this.reg[7]);
   }
 
   handle_HLT() {
