@@ -21,9 +21,10 @@ class CPU {
     this.branchTable[67] = a => this.handle_PRN(a);
     this.branchTable[170] = (a, b) => this.handle_MUL(a, b);
     this.branchTable[72] = a => this.handle_CALL(a);
-    this.branchTable[24] = (a, b) => this.handle_ADD(a, b);
+    this.branchTable[168] = (a, b) => this.handle_ADD(a, b);
     this.branchTable[77] = a => this.handle_PUSH(a);
     this.branchTable[76] = a => this.handle_POP(a);
+    this.branchTable[9] = () => this.handle_RET();
     this.branchTable[1] = () => this.handle_HLT();
 
     // Special-purpose registers
@@ -51,7 +52,6 @@ class CPU {
    */
   stopClock() {
     clearInterval(this.clock);
-    console.log("stopClock()");
   }
 
   /**
@@ -66,10 +66,14 @@ class CPU {
    */
   alu(op, regA, regB) {
     switch (op) {
-      case "MUL":
-        return regA * regB;
       case "ADD":
         return regA + regB;
+      case "SUB":
+        return regA - regB;
+      case "MUL":
+        return regA * regB;
+      case "DIV":
+        return regA / regB;
     }
   }
 
@@ -93,11 +97,13 @@ class CPU {
   }
 
   handle_CALL(operandA) {
+    // this.stopClock();
     console.log(`Reg ${operandA} is called (${this.reg[operandA]})`);
+    this.subRoutine(this.reg[operandA]);
   }
 
   handle_ADD(operandA, operandB) {
-    console.log(`Multiply ${this.reg[operandA]} by 2 and print it`);
+    console.log(`Add ${this.reg[operandA]} to ${this.reg[operandA]}`);
     this.reg[operandA] = this.alu(
       "ADD",
       this.reg[operandA],
@@ -119,7 +125,13 @@ class CPU {
     this.reg[this.SP]++;
   }
 
+  handle_RET() {
+    console.log("RET");
+    // this.startClock();
+  }
+
   handle_HLT() {
+    console.log("HLT");
     this.stopClock();
   }
 
@@ -164,6 +176,20 @@ class CPU {
     // for any particular instruction.
     const instLen = (IR >> 6) + 1;
     this.PC += instLen;
+  }
+
+  subRoutine(call) {
+    const IR = this.ram.read(call);
+    console.log(`IR is ${IR}`);
+    if (IR === 9) {
+      return this.branchTable[IR]();
+    }
+    const operandA = this.ram.read(call + 1);
+    const operandB = this.ram.read(call + 2);
+    this.branchTable[IR](operandA, operandB);
+    const instLen = (IR >> 6) + 1;
+    call += instLen;
+    this.subRoutine(call);
   }
 }
 
